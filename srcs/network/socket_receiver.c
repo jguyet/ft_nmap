@@ -56,17 +56,8 @@ BOOLEAN			set_on_socket_protocol_options(t_nmap *nmap)
 	if (setsockopt(nmap->sock, 0, TCP_IP_PACKET_HEADER_SERVICE,\
 		&ttl, sizeof(ttl)) != 0)
 		return (false);
-	if (nmap->use_ip_header)
-	{
-		if ((setsockopt(nmap->sock, IPPROTO_IP, IP_HDRINCL, &opt, sizeof(opt))) != 0)
-			return (false);
-	}
-	if (F_SOCK_DEBUG)
-		if (setsockopt(nmap->sock, SOL_SOCKET, SO_DEBUG, (char*)&opt, sizeof(opt)) != 0)
-			return (false);
-	if (F_DONTROUTE)
-		if (setsockopt(nmap->sock, SOL_SOCKET, SO_DONTROUTE, (char*)&opt, sizeof(opt)) != 0)
-			return (false);
+	if ((setsockopt(nmap->sock, IPPROTO_IP, IP_HDRINCL, &opt, sizeof(opt))) != 0)
+		return (false);
 	return (true);
 }
 

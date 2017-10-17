@@ -33,7 +33,7 @@ int	main(int argc, char **argv)
 			return (false);
 		if (nmap->dest_ip)
 		{
-			printf("ft_nmap to %s (%s), %d hops max, %d byte packets\n", nmap->shost, nmap->dest_ip, nmap->max_hop, nmap->sweepminsize);
+			printf("ft_nmap to %s (%s), 255 hops max, %d byte packets\n", nmap->shost, nmap->dest_ip, nmap->sweepminsize);
 			nmap->launch(nmap);
 		}
 		else

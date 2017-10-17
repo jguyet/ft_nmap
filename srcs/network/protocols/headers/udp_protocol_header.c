@@ -25,11 +25,11 @@ void		prepare_udp_header(t_message *message, t_protocol_information *pi)
 	gettimeofday((struct timeval*)&message->udp_header.tv, 0);
 }
 
-void		serialize_udp_header(t_message *message, t_protocol_information *pi, size_t iphdr_size)
+void		serialize_udp_header(t_message *message, t_protocol_information *pi)
 {
-	ft_memcpy(message->data + iphdr_size, &message->udp_header, pi->protocol->len);
+	ft_memcpy(message->data + IPHDR_SIZE, &message->udp_header, pi->protocol->len);
 	message->udp_header.check = 0;
-	ft_memcpy(message->data + iphdr_size, &message->udp_header, pi->protocol->len);
+	ft_memcpy(message->data + IPHDR_SIZE, &message->udp_header, pi->protocol->len);
 }
 
 void		deserialize_udp_header(t_message *message, t_protocol_information *pi)

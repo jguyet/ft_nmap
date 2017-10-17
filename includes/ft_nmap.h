@@ -78,6 +78,22 @@ typedef struct				s_protocol_information
 	char					*dest_ip;
 }							t_protocol_information;
 
+typedef struct				s_recvfrom
+{
+	t_message				*message;
+	struct sockaddr_in		from;
+}							t_recvfrom;
+
+typedef struct				s_scan
+{
+	BOOLEAN					syn;
+	BOOLEAN					null;
+	BOOLEAN					fin;
+	BOOLEAN					xmas;
+	BOOLEAN					ack;
+	BOOLEAN					udp;
+}							t_scan;
+
 /*
 ** nmap struct
 */
@@ -92,46 +108,29 @@ typedef struct				s_nmap
 	char                    *dest_ip;
 	int						pid;		/* pid of current program		*/
 	int						ttl;		/* time to live  				*/
-	int						max_hop;
 	int						sequence;	/* sequence id  				*/
 	int						received;	/* total received messages  	*/
 	int						send;		/* total sended messages  		*/
-	int						sweepmaxsize;
 	int						sweepminsize;
+	struct timeval			timeout;	/* timeout						*/
 	t_flag					**flags;	/* map of flags					*/
 	BOOLEAN					(*launch)();/* pointer of function launch	*/
-	long					start_time;	/* timer						*/
-	struct timeval			timeout;	/* timeout						*/
-	int						mintime;	/* mintime						*/
-	long					totaltime;	/* medium time					*/
-	int						maxtime;	/* maxtime						*/
-	char			        **ip_tab;
 	const struct protocole	*protocol;
 	t_message				*message;
 	BOOLEAN					retry;
-	BOOLEAN                 use_ip_header;
 	int                     socket_type;
-	char                    *write_message;
-	int                     interval_number_connection;
+	int						*ports;
+	int						speedup;
+	t_scan					*scans;
 }							t_nmap;
 
-# define FLAGS_SIZE			13
+# define FLAGS_SIZE			5
 
-# define F_MAXHOPS			nmap->flags[0]->actif
-# define F_FIRSTHOPS		nmap->flags[1]->actif
-# define F_PRINT_HOP_ADDR	nmap->flags[2]->actif
-# define F_SOCK_DEBUG		nmap->flags[3]->actif
-# define F_DONTROUTE		nmap->flags[4]->actif
-# define F_PROTOCOL			nmap->flags[5]->actif
-# define F_PORT				nmap->flags[6]->actif
-# define F_DEFAULT			nmap->flags[7]->actif
-# define F_IP_HDR			nmap->flags[8]->actif
-# define F_TIME_INFO		nmap->flags[9]->actif
-# define F_ASCII_DEBUG_MSG	nmap->flags[10]->actif
-# define F_WRITING	        nmap->flags[11]->actif
-# define F_INTERVAL_CONNECTION nmap->flags[12]->actif
-
-# define NB_DEFAULT_INTERVAL_CONNECTION	3
+# define F_PORT				nmap->flags[0]
+# define F_IP				nmap->flags[1]
+# define F_FILE				nmap->flags[2]
+# define F_SPEEDUP			nmap->flags[3]
+# define F_SCAN				nmap->flags[4]
 
 # define MAX_PACKET_SIZE 65535
 
@@ -147,7 +146,7 @@ BOOLEAN			            set_on_socket_protocol_options(t_nmap *nmap);
 BOOLEAN						socket_connection_is_estabilised(int fd);
 BOOLEAN						bind_error(void);
 BOOLEAN						set_socket_options_error(void);
-BOOLEAN						send_message(t_nmap *nmap, t_message *message);
+BOOLEAN						send_message(t_nmap *nmap, t_message *message, t_protocol_information *pi);
 
 /*
 ** flags manager
@@ -156,6 +155,10 @@ BOOLEAN						load_flags(t_nmap *nmap, int argc, char **argv);
 BOOLEAN						load_flag_list(t_nmap *nmap);
 BOOLEAN						set_flags_values(t_nmap *nmap);
 BOOLEAN						print_help(t_nmap *nmap);
+
+int				   			*load_ports_flags(char *ports);
+int							tab_length(int *tab);
+void        				load_flag_scan(t_scan *scans, char *value);
 
 /*
 ** nmap.c
@@ -170,15 +173,15 @@ BOOLEAN						sendto_message(t_nmap *nmap);
 ** Messages
 */
 t_message					*new_message(size_t size);
-BOOLEAN						serialize_message(t_message *message, t_protocol_information *pi, BOOLEAN use_ip_hdr);
+BOOLEAN						serialize_message(t_message *message, t_protocol_information *pi);
 void						destruct_message(t_message *packet);
-t_message					*deserialize_message(t_protocol_information *pi, void *ptr, int ptr_size, BOOLEAN use_ip_hdr);
+t_message					*deserialize_message(t_protocol_information *pi, void *ptr, int ptr_size);
 void			            tostring(t_message *message);
 
 /*
 ** Handler
 */
-char						*handle_message(t_nmap *nmap, t_protocol_information *pi);
+t_recvfrom					*handle_message(t_nmap *nmap, t_protocol_information *pi, int packet_size);
 char                        *process_received_message(t_nmap *nmap, struct sockaddr_in *addr);
 
 /*
@@ -196,14 +199,6 @@ int                         get_count_of_host_ipv4(char *host, int ai_protocol);
 struct	sockaddr_in	        **get_all_sockaddr_in_ipv4(char *host, int ai_protocol);
 
 /*
-** Array ip tab
-*/
-BOOLEAN						ip_tab_contains(t_nmap *nmap, struct in_addr *addr);
-void						reset_ip_tab(t_nmap *nmap);
-void						free_ip_tab(t_nmap *nmap);
-BOOLEAN						load_ip_tab(t_nmap *nmap);
-
-/*
 ** struct protocol information
 */
 t_protocol_information		*new_protocol_information(void);
@@ -219,11 +214,11 @@ void		                prepare_udp_header(t_message *message, t_protocol_informat
 void		                prepare_tcp_header(t_message *message, t_protocol_information *pi);
 void		                prepare_gre_header(t_message *message, t_protocol_information *pi);
 
-void					    serialize_ip_header(t_message *message, t_protocol_information *pi, size_t iphdr_size);
-void					    serialize_icmp_header(t_message *message, t_protocol_information *pi, size_t iphdr_size);
-void					    serialize_udp_header(t_message *message, t_protocol_information *pi, size_t iphdr_size);
-void					    serialize_tcp_header(t_message *message, t_protocol_information *pi, size_t iphdr_size);
-void					    serialize_gre_header(t_message *message, t_protocol_information *pi, size_t iphdr_size);
+void					    serialize_ip_header(t_message *message, t_protocol_information *pi);
+void					    serialize_icmp_header(t_message *message, t_protocol_information *pi);
+void					    serialize_udp_header(t_message *message, t_protocol_information *pi);
+void					    serialize_tcp_header(t_message *message, t_protocol_information *pi);
+void					    serialize_gre_header(t_message *message, t_protocol_information *pi);
 
 void		                deserialize_icmp_header(t_message *message, t_protocol_information *pi);
 void		                deserialize_udp_header(t_message *message, t_protocol_information *pi);
@@ -285,5 +280,7 @@ static const struct protocole protos[MAX_PROTOCOLS] = {
 		deserialize_gre_header
 	}
 };
+
+BOOLEAN					test_connection(t_nmap *nmap);
 
 #endif

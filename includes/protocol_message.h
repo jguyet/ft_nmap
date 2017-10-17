@@ -226,9 +226,7 @@ struct iphdr
 
 typedef struct				s_message
 {
-//# ifdef __linux__
 	struct iphdr			ip_header;
-//# endif
 	struct icmphdr			icmp_header;				/* header of message send 	*/
     struct udphdr           udp_header;
     struct tcphdr           tcp_header;

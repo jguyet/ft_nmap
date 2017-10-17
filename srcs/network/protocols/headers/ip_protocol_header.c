@@ -43,9 +43,8 @@ void		prepare_iphdr(t_message *message, t_protocol_information *pi)
 	ft_strdel(&tmp_dest);
 }
 
-void		serialize_ip_header(t_message *message, t_protocol_information *pi, size_t iphdr_size)
+void		serialize_ip_header(t_message *message, t_protocol_information *pi)
 {
-	(void)iphdr_size;
 	message->ip_header.len = IPHDR_SIZE + pi->protocol->len + message->packet_len;
 	ft_memcpy(message->data, &message->ip_header, IPHDR_SIZE);
 	message->ip_header.checksum = checksum(&message->data, message->ip_header.len);

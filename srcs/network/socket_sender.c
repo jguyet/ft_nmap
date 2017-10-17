@@ -56,29 +56,20 @@ BOOLEAN			set_on_socket_sender_options(t_nmap *nmap)
 	if (setsockopt(nmap->sock_snd, 0, TCP_IP_PACKET_HEADER_SERVICE,\
 		&ttl, sizeof(ttl)) != 0)
 		return (false);
-	if (nmap->use_ip_header)
-	{
-		if ((setsockopt(nmap->sock_snd, IPPROTO_IP, IP_HDRINCL, &opt, sizeof(opt))) != 0)
-			return (false);
-	}
+	if ((setsockopt(nmap->sock_snd, IPPROTO_IP, IP_HDRINCL, &opt, sizeof(opt))) != 0)
+		return (false);
 	if (setsockopt(nmap->sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&nmap->timeout, sizeof(nmap->timeout)) != 0)
 		return (false);
 	return (true);
 }
 
-BOOLEAN		send_message(t_nmap *nmap, t_message *message)
+BOOLEAN		send_message(t_nmap *nmap, t_message *message, t_protocol_information *pi)
 {
+	struct sockaddr *destination;
 	int		res;
 
-	nmap->send++;
-	nmap->start_time = get_current_time_millis();
-	if (F_ASCII_DEBUG_MSG)
-	{
-		printf("\n   Packet > (%s) [", nmap->dest_ip);
-		message->tostring(message);
-		printf("]\n");
-	}
-	res = sendto(nmap->sock, message->data, message->len, MSG_DONTWAIT, (struct sockaddr*)nmap->addr, sizeof(*nmap->addr));
+	destination = (struct sockaddr*)get_sockaddr_in_ipv4(pi->dest_ip);
+	res = sendto(nmap->sock, message->data, message->len, MSG_DONTWAIT, destination, sizeof(destination));
 	
 	if (res < 0)
 	{

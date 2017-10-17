@@ -27,30 +27,22 @@ t_message	*new_message(size_t size)
 	return (message);
 }
 
-BOOLEAN		serialize_message(t_message *message, t_protocol_information *pi, BOOLEAN use_ip_hdr)
+BOOLEAN		serialize_message(t_message *message, t_protocol_information *pi)
 {
-	size_t		iphdr_size = 0;
+	//prepare ip header
+	prepare_iphdr(message, pi);
 
-	if (use_ip_hdr)
-	{
-		iphdr_size = IPHDR_SIZE;
-		//prepare ip header
-		prepare_iphdr(message, pi);
-	}
 	//set message total length
-	message->packet_len = message->len - (pi->protocol->len + iphdr_size);
+	message->packet_len = message->len - (pi->protocol->len + IPHDR_SIZE);
 	//prepare protocol header
 	pi->protocol->prepare_header(message, pi);
 	//serialize message
-	pi->protocol->serialize(message, pi, iphdr_size);
-	if (use_ip_hdr)
-	{
-		serialize_ip_header(message, pi, iphdr_size);
-	}
+	pi->protocol->serialize(message, pi);
+	serialize_ip_header(message, pi);
 	return (true);
 }
 
-t_message		*deserialize_message(t_protocol_information *pi, void *ptr, int ptr_size, BOOLEAN use_ip_hdr)
+t_message		*deserialize_message(t_protocol_information *pi, void *ptr, int ptr_size)
 {
 	t_message *message;
 
@@ -58,12 +50,11 @@ t_message		*deserialize_message(t_protocol_information *pi, void *ptr, int ptr_s
 		return (NULL);
 	message->data = ptr;
 	message->packet_len = ptr_size;
-	if (use_ip_hdr)
-	{
-		ft_memcpy(&message->ip_header, message->data, IPHDR_SIZE);
-		message->data += IPHDR_SIZE;
-		message->packet_len -= IPHDR_SIZE;
-	}
+
+	ft_memcpy(&message->ip_header, message->data, IPHDR_SIZE);
+	message->data += IPHDR_SIZE;
+	message->packet_len -= IPHDR_SIZE;
+
 	pi->protocol->deserialize(message, pi);
 	message->packet_len -= pi->protocol->len;
 	message->len = ptr_size;

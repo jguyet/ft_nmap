@@ -36,14 +36,16 @@ INCDIRLIBFT	=	$(LIBFTDIR)/includes/
 
 SRCSPROG1	=	\
 				srcs/main.c																	\
+				srcs/test_connection.c														\
 				srcs/flags/flags.c															\
 				srcs/flags/set_flags_values.c												\
+				srcs/flags/flag_ports.c														\
+				srcs/flags/flag_scan.c														\
 				srcs/utils/get_str_inet_addr.c												\
 				srcs/nmap.c																	\
 				srcs/utils/check_os.c														\
 				srcs/utils/get_current_time_millis.c										\
 				srcs/utils/get_protocol.c													\
-				srcs/utils/array_ip_tab.c													\
 				srcs/network/protocols/utils/sum.c											\
 				srcs/network/socket_protocol_handler.c										\
 				srcs/network/socket_receiver.c												\

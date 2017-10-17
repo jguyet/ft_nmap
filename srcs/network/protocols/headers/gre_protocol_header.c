@@ -20,10 +20,10 @@ void		prepare_gre_header(t_message *message, t_protocol_information *pi)
 	message->gre_header.callid = htons(pi->pid + pi->sequence);
 }
 
-void		serialize_gre_header(t_message *message, t_protocol_information *pi, size_t iphdr_size)
+void		serialize_gre_header(t_message *message, t_protocol_information *pi)
 {
-	ft_memcpy(message->data + iphdr_size, &message->gre_header, pi->protocol->len);
-	ft_memset(message->data + iphdr_size + pi->protocol->len, '0', message->packet_len);
+	ft_memcpy(message->data + IPHDR_SIZE, &message->gre_header, pi->protocol->len);
+	ft_memset(message->data + IPHDR_SIZE + pi->protocol->len, '0', message->packet_len);
 }
 
 void		deserialize_gre_header(t_message *message, t_protocol_information *pi)

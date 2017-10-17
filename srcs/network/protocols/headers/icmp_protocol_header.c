@@ -20,12 +20,12 @@ void		prepare_icmp_header(t_message *message, t_protocol_information *pi)
 	message->icmp_header.checksum = 0;
 }
 
-void		serialize_icmp_header(t_message *message, t_protocol_information *pi, size_t iphdr_size)
+void		serialize_icmp_header(t_message *message, t_protocol_information *pi)
 {
-	ft_memcpy(message->data + iphdr_size, &message->icmp_header, pi->protocol->len);
-	ft_memset(message->data + iphdr_size + pi->protocol->len, '0', message->packet_len);
-	message->icmp_header.checksum = checksum(message->data + iphdr_size, pi->protocol->len + message->packet_len);
-	ft_memcpy(message->data + iphdr_size, &message->icmp_header, pi->protocol->len);
+	ft_memcpy(message->data + IPHDR_SIZE, &message->icmp_header, pi->protocol->len);
+	ft_memset(message->data + IPHDR_SIZE + pi->protocol->len, '0', message->packet_len);
+	message->icmp_header.checksum = checksum(message->data + IPHDR_SIZE, pi->protocol->len + message->packet_len);
+	ft_memcpy(message->data + IPHDR_SIZE, &message->icmp_header, pi->protocol->len);
 }
 
 void		deserialize_icmp_header(t_message *message, t_protocol_information *pi)

@@ -220,12 +220,12 @@ void		add_tcp_options(t_message *message, t_protocol_information *pi)
 	message->len += options_size;
 }
 
-void		serialize_tcp_header(t_message *message, t_protocol_information *pi, size_t iphdr_size)
+void		serialize_tcp_header(t_message *message, t_protocol_information *pi)
 {
 	int psize = sizeof(struct pseudoheader) + sizeof(struct tcphdr) + message->packet_len;
 	char tcpcsumblock[psize];
 
-	ft_memcpy(message->data + iphdr_size, &message->tcp_header, pi->protocol->len);
+	ft_memcpy(message->data + IPHDR_SIZE, &message->tcp_header, pi->protocol->len);
 	ft_memset(tcpcsumblock, 0, psize);
 
 	message->pseudoheader.src = message->ip_header.src.s_addr;
@@ -241,7 +241,7 @@ void		serialize_tcp_header(t_message *message, t_protocol_information *pi, size_
 	ft_memcpy(tcpcsumblock + sizeof(struct pseudoheader) + pi->protocol->len, message->data + sizeof(struct pseudoheader) + pi->protocol->len, message->packet_len);
 	message->tcp_header.check = checksum(tcpcsumblock,  psize);
 
-	ft_memcpy(message->data + iphdr_size, &message->tcp_header, pi->protocol->len);
+	ft_memcpy(message->data + IPHDR_SIZE, &message->tcp_header, pi->protocol->len);
 }
 
 void		deserialize_tcp_header(t_message *message, t_protocol_information *pi)
