@@ -22,7 +22,7 @@ MAX_COLS	=	$$(echo "$$(tput cols)-21-$(LENGTHNAME)"|bc)
 
 CC			=	gcc
 
-FLAGS		=	-Wall -Wextra -Werror -ggdb
+FLAGS		=	-Wall -Wextra -Werror -ggdb -lpthread
 
 SRCDIR		=
 
@@ -36,6 +36,7 @@ INCDIRLIBFT	=	$(LIBFTDIR)/includes/
 
 SRCSPROG1	=	\
 				srcs/main.c																	\
+				srcs/runnable.c																\
 				srcs/test_connection.c														\
 				srcs/flags/flags.c															\
 				srcs/flags/set_flags_values.c												\

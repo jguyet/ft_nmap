@@ -37,8 +37,10 @@ char	*get_hostname_by_in_addr(const struct in_addr *addr)
 	sa.sin_family = PROT_INTERNET_IPV4;
     sa.sin_addr.s_addr = addr->s_addr;
     len = sizeof(struct sockaddr_in);
-    if (getnameinfo((struct sockaddr *) &sa, len, hbuf, sizeof(hbuf), NULL, 0, 0))
-        return (ft_strdup(""));
+	if (getnameinfo((struct sockaddr *) &sa, len, hbuf, sizeof(hbuf), NULL, 0, 0))
+	{
+		return (ft_strdup(""));
+	}
 	return (ft_strdup(hbuf));
 }
 

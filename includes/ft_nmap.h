@@ -67,23 +67,6 @@ struct protocole
 	void                    (*deserialize)();
 };
 
-typedef struct				s_protocol_information
-{
-	int						pid;
-	int						ttl;
-	int						sequence;
-	int						port;
-	const struct protocole	*protocol;
-	char					*source_ip;
-	char					*dest_ip;
-}							t_protocol_information;
-
-typedef struct				s_recvfrom
-{
-	t_message				*message;
-	struct sockaddr_in		from;
-}							t_recvfrom;
-
 typedef struct				s_scan
 {
 	BOOLEAN					syn;
@@ -93,6 +76,24 @@ typedef struct				s_scan
 	BOOLEAN					ack;
 	BOOLEAN					udp;
 }							t_scan;
+
+typedef struct				s_protocol_information
+{
+	int						pid;
+	int						ttl;
+	int						sequence;
+	int						port;
+	const struct protocole	*protocol;
+	char					*source_ip;
+	char					*dest_ip;
+	t_scan					*scans;
+}							t_protocol_information;
+
+typedef struct				s_recvfrom
+{
+	t_message				*message;
+	struct sockaddr_in		from;
+}							t_recvfrom;
 
 /*
 ** nmap struct
@@ -281,6 +282,9 @@ static const struct protocole protos[MAX_PROTOCOLS] = {
 	}
 };
 
-BOOLEAN					test_connection(t_nmap *nmap);
+BOOLEAN					test_connection(t_nmap *nmap, int port);
+
+
+BOOLEAN        			new_thread(t_nmap *nmap);
 
 #endif

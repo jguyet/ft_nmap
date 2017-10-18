@@ -195,7 +195,17 @@ BOOLEAN			load_flag_list(t_nmap *nmap)
 {
 	if (!(nmap->flags = malloc(sizeof(t_flag) * FLAGS_SIZE)))
 		return (false);
-	nmap->flags[0] = newflag(&(t_flag){false, "--ports",	true, "--ports    ports to scan (ex: 1-10 or 1,2,3 or 1,5-15)\n",	NULL, 2, "ft_nmap: invalid ports syntax (ex: 1-10 or 1,2,3 or 1,5-15), min-max (1-32768)\n"});
+		/*	PLAGES DES PORTS
+		**	Les 3 plages de l'IANA : (l'IANA (Internet Assigned Numbers Authority) s'occupe du nommage et la correspondance entre nom et numéro port via des procédures d'attributions.)
+		**	- de 1 à 1023: ports systèmes assignés par l'IANA (system ports ou "well-known ports")
+		**	- de 1024 à  49151: ports enregistrés assignés par l'IANA  (registered ports)
+		**	- de 49152 à 65535: port éphémères non gérés par l'IANA (dynamic ports)
+		**
+		** WINDOWS COMMAND PLAGES : netsh int ipv4 show dynamicport tcp
+		** LINUX COMMAND PLAGES : cat /proc/sys/net/ipv4/ip_local_port_range
+		** MACOS COMMAND PLAGES : sysctl net.inet.ip.portrange.first net.inet.ip.portrange.last
+		*/
+	nmap->flags[0] = newflag(&(t_flag){false, "--ports",	true, "--ports    ports to scan (ex: 1-10 or 1,2,3 or 1,5-15)\n",	NULL, 2, "ft_nmap: invalid ports syntax (ex: 1-10 or 1,2,3 or 1,5-15), min-max (1-65535)\n"});
 	nmap->flags[1] = newflag(&(t_flag){false, "--ip",		true, "--ip       ip addresses to scan in dot format\n",			NULL, -1, NULL});
 	nmap->flags[2] = newflag(&(t_flag){false, "--file",		true, "--file     File name containing IP addresses to scan,\n",	NULL, 2, NULL});
 	nmap->flags[3] = newflag(&(t_flag){false, "--speedup",	true, "--speedup  [250 max] number of parallel threads to use\n",	NULL, 1, "ft_nmap: invalid speedup (1-250)\n"});

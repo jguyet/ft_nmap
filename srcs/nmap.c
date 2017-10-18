@@ -42,7 +42,7 @@ t_nmap		*singleton_nmap(void)
 	nmap->launch = process_nmaproute;
 	nmap->pid = (getpid() & 0xFFFF) | 0x8000;
 	nmap->ttl = 64;
-	nmap->protocol = get_protocol(ICMP);
+	nmap->protocol = get_protocol(TCP);
 	nmap->socket_type = INTERNAL_SOCK_FLUX;
 	nmap->dest_ip = NULL;
 	nmap->sweepminsize = nmap->protocol->len + IPHDR_SIZE;
@@ -76,17 +76,6 @@ void		destruct_nmap(t_nmap *nmap)
 	if (nmap->dest_ip != NULL)
 		ft_strdel(&nmap->dest_ip);
 	free(nmap);
-}
-
-void		process_test(t_nmap *nmap)
-{
-	//Open socket connection
-	initialize_socket_receiver_connection(nmap);
-	initialize_socket_sender_connection(nmap);
-	test_connection(nmap);
-	//close socket connection
-	close(nmap->sock);
-	close(nmap->sock_snd);
 }
 
 char		*get_string_scans(t_scan *scans)
@@ -137,6 +126,24 @@ BOOLEAN		process_nmaproute(t_nmap *nmap)
 	printf("Scans to be performed : %s\n", get_string_scans(nmap->scans));
 	printf("No of threads : %d\n", nmap->speedup);
 	printf("Scanning..\n");
-	process_test(nmap);
+
+	//int i = 0;
+
+	//Open socket connection
+	initialize_socket_receiver_connection(nmap);
+	initialize_socket_sender_connection(nmap);
+
+	test_connection(nmap, 80);
+	/*while (i < nmap->speedup)
+	{
+		new_thread(nmap);
+		i++;
+	}*/
+	//process_test(nmap, 80);
+	sleep(3000);
+
+	//close socket connection
+	close(nmap->sock);
+	close(nmap->sock_snd);
 	return (true);
 }

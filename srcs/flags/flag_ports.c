@@ -35,7 +35,7 @@ static void			add_port(int *tab, int port)
 {
 	int i = 0;
 
-	if (port <= 0 || port >= 32768)
+	if (port <= 0 || port >= 65535)
 		return ;
 	while (tab[i])
 	{
